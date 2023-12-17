@@ -6,24 +6,45 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 
+dbc_css="https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 
 events=pd.read_excel('Df_1_Project_1.xlsx', sheet_name="Events")
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
+app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE, dbc_css])
 
 load_figure_template("SLATE")
 
 app.layout = html.Div([
-       html.H4("Select Entity"),
-       dcc.Dropdown(
-              id="Entity_Picker",
-              options=events.loc[:,"Entity"].unique(),
-              value="Fund_1"
-       ),
-       dcc.Graph(
-              id="Cash_Forecast"
-       )
+       dbc.Row([
+              dbc.Col([
+                     dbc.Row(html.H6("Select Entity")),
+                     dbc.Row(dcc.Dropdown(id="Entity_Picker",
+                                          options=events.loc[:,"Entity"].unique(),
+                                          value="Fund_1",
+                                          className="dbc")),
+                     html.Br(),
+                     html.Br(),
+                     html.Br(),
+                     html.Br(),
+                     html.Br(),
+                     html.Br(),
+                     dbc.Row(html.H6("Heatmap Backtesting All Entities"))
+              ],width=2),
+              dbc.Col([
+                     dbc.Row(html.H6("Cashflow Forecast ")),
+                     dbc.Row(dcc.Graph(id="Cash_Forecast")),
+                     dbc.Row(html.H6("Cashflow Table"))
+                     # dbc.Row(dbc.Table.from_dataframe(events))
+              ],width=6),
+              dbc.Col([
+                     dbc.Row(html.H6("Detailed Cashflow View?")),
+                     dbc.Row(dbc.Row(dbc.Table.from_dataframe(events.iloc[0:5,0:4],
+                                                              size="sm"))),
+                     dbc.Row(html.H6("Heatmap Cashflow All Entities?"))
+              ])
+       ])
 ])
+
 @app.callback(
        Output("Cash_Forecast","figure"),
        Input("Entity_Picker","value"),
